@@ -4,35 +4,37 @@ services:
   odoo:
     build: .
     container_name: odoo
-    depends_on:
-      - db
     ports:
       - "8069:8069"
-    volumes:
-      - .:/opt/odoo
-      - /etc/odoo/odoo.conf:/etc/odoo/odoo.conf
     environment:
-      - ODOO_CONFIG=/etc/odoo/odoo.conf
+      - ODOO_HOME=/opt/odoo
+      - ODOO_CONF=/opt/odoo/odoo/odoo.conf
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=odoo
+      - DB_PASSWORD=odoo
+    depends_on:
+      - db
+    volumes:
+      - ./addons:/opt/odoo/odoo/custom-addons
     networks:
-      - odoo_network
-    restart: always
+      - odoo-net
 
   db:
-    image: postgres:15
-    container_name: odoo-db
+    image: "postgres:15"
+    container_name: odoo-postgres
     environment:
-      POSTGRES_DB: odoo
-      POSTGRES_USER: odoo
-      POSTGRES_PASSWORD: odoo
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_DB=postgres
     volumes:
-      - odoo-db-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     networks:
-      - odoo_network
-    restart: always
+      - odoo-net
 
 volumes:
-  odoo-db-data:
+  postgres-data:
 
 networks:
-  odoo_network:
+  odoo-net:
     driver: bridge
