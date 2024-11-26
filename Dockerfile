@@ -4,7 +4,7 @@ LABEL authors="amunoz"
 
 # Set environment variables
 ENV ODOO_HOME=/opt/odoo
-ENV ADDONS_PATH=/opt/odoo/odoo/addons,/opt/odoo/odoo/custom-addons
+ENV ADDONS_PATH=/opt/odoo/odoo/addons,/opt/odoo/odoo/custom_addons
 ENV ODOO_CONF=/opt/odoo/odoo/odoo.conf
 ENV DEBIAN_FRONTEND=noninteractive
 
