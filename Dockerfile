@@ -1,5 +1,5 @@
-# Use an official Python image
-FROM python:3.12
+# Use a slim Python image to reduce size
+FROM python:3.12-slim
 LABEL authors="amunoz"
 
 # Expose Odoo port
@@ -35,18 +35,19 @@ RUN apt-get update && apt-get install -y \
 # Create Odoo user and home directory
 RUN useradd -m -d $ODOO_HOME -U -r -s /bin/bash odoo
 
-# Copy the Odoo source code from the repository into the container
-COPY . /opt/odoo/odoo
+# Create the log & data directory and set ownership/permissions
+RUN mkdir -p /var/log/odoo /opt/odoo/data && \
+    chown -R odoo:odoo /var/log/odoo /opt/odoo
 
-# Ensure odoo user has permission to write to the ODOO_HOME directory and all its contents
-RUN chown -R odoo:odoo /opt/odoo
+# Copy the Odoo source code from the repository into the container
+COPY --chown=odoo:odoo . /opt/odoo/odoo
 
 # Switch to Odoo user
 USER odoo
 
 # Install dependencies
-RUN pip install wheel
-RUN pip install -r /opt/odoo/odoo/requirements.txt
+RUN pip install --no-cache-dir wheel && \
+    pip install --no-cache-dir -r /opt/odoo/odoo/requirements.txt
 
-# Entry point for the Odoo server (using the correct path to odoo.conf)
+# Entry point for the Odoo server
 CMD ["python3", "/opt/odoo/odoo/odoo-bin", "-c", "/opt/odoo/odoo/odoo.conf"]
